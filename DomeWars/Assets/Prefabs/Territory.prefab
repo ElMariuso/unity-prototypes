@@ -98,3 +98,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   id: 0
+  territoryName: 
+  neighborgs: 
+  territoryMaterial: {fileID: 2100000, guid: f7519bcf9401a9b4fa1178772fc05c8e, type: 2}

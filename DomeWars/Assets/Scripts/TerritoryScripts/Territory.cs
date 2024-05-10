@@ -9,12 +9,17 @@ public class Territory : MonoBehaviour
     // buildings
     // private short danger = 0;
     // units
-
-    /* Gang */
     // public Gang gang;
-    private Color color;
+
+    /* Utils */
+    private Renderer territoryRenderer;
+
+    private void Awake()
+    {
+        territoryRenderer = GetComponent<Renderer>();
+    }
 
     /* Neighborgs */
-
-    /* Gang */
+    public void AddNeighborg(int id) { neighborgs.Add(id); }
+    private void changeColor(Color newColor) { territoryRenderer.material.color = newColor; }
 }
