@@ -8,8 +8,8 @@ public class Territory : MonoBehaviour
     public List<int> neighborgs;
     // buildings
     // private short danger = 0;
-    // units
-    // public Gang gang;
+    public List<Unit> units;
+    public Gang gang;
 
     /* Utils */
     private Renderer territoryRenderer;
@@ -17,6 +17,8 @@ public class Territory : MonoBehaviour
     private void Awake()
     {
         territoryRenderer = GetComponent<Renderer>();
+
+        changeColor(Color.red);
     }
 
     /* Neighborgs */
