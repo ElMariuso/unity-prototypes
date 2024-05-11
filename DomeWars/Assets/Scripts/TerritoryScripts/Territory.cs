@@ -5,11 +5,13 @@ public class Territory : MonoBehaviour
 {
     public int id;
     public string territoryName;
-    public List<int> neighborgs;
+    public List<int> neighbourgs = new List<int>();
     // buildings
     // private short danger = 0;
     public List<Unit> units;
-    public Gang gang;
+    public Gang gang = null;
+    
+    public Vector2Int coords;
 
     /* Utils */
     private Renderer territoryRenderer;
@@ -17,11 +19,16 @@ public class Territory : MonoBehaviour
     private void Awake()
     {
         territoryRenderer = GetComponent<Renderer>();
-
-        changeColor(Color.red);
     }
 
-    /* Neighborgs */
-    public void AddNeighborg(int id) { neighborgs.Add(id); }
+    public void AddNeighborg(int id) { neighbourgs.Add(id); }
+
+    /* Gang Management */
+    public void SetGang(Gang newGang)
+    { 
+        gang = newGang;
+
+        changeColor(newGang.color);
+    }
     private void changeColor(Color newColor) { territoryRenderer.material.color = newColor; }
 }
