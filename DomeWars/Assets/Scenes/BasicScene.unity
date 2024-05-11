@@ -274,6 +274,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   width: 5
   height: 5
+  initialTerritories: 3
   territoryPrefab: {fileID: 1592392096586248104, guid: 06ca6ac6d92badb4b809055182995c50, type: 3}
   gangPrefab: {fileID: 1028263890493375522, guid: 309c76a86ad742f4692ae23d0c7a06c6, type: 3}
   territoryTermsList: {fileID: 11400000, guid: 2126303c5aba6204ebb20c881e448133, type: 2}
