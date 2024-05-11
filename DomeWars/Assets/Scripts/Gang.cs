@@ -5,8 +5,8 @@ using UnityEngine;
 public class Gang : MonoBehaviour
 {
     public int id;
-    private string name;
-    private string color;
+    private string gangName;
+    private Color color;
     private int mainTerritoryId;
     private List<int> territorylist = new List<int> ();
     private Dictionary<Gang,int> relation = new Dictionary<Gang, int> ();

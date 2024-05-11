@@ -6,7 +6,7 @@ public class Territory : MonoBehaviour
     public int id;
     public string territoryName;
     public List<int> neighborgs;
-    // buildings
+    public List<Building> buildingList = new List<Building>();
     // private short danger = 0;
     public List<Unit> units;
     public Gang gang;
