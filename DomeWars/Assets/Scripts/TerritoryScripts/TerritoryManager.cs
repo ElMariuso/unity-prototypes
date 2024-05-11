@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class TerritoryManager : MonoBehaviour
@@ -6,6 +7,7 @@ public class TerritoryManager : MonoBehaviour
     [SerializeField] private int width;
     [SerializeField] private int height;
     [SerializeField] private GameObject territoryPrefab;
+    [SerializeField] private GameObject gangPrefab;
     public Dictionary<int, GameObject> territories = new Dictionary<int, GameObject>();
 
     /* Name Generator */
@@ -13,10 +15,12 @@ public class TerritoryManager : MonoBehaviour
 
     private Vector2 territorySize;
 
-    private void Awake()
+    public void InitAll()
     {
         CalculateTerritorySize();
         GenerateTerritories();
+        AssignNeighborgs();
+        GenerateGangs((width * height) / 3);   
     }
 
     /* Generate Territories */
@@ -42,23 +46,167 @@ public class TerritoryManager : MonoBehaviour
             for (int x = 0; x < width; x++)
             {
                 xOffset = (y % 2 == 0) ? 0 : territorySize.x * 0.5f;
-                spawnPosition = new Vector3(x * territorySize.x * 0.75f + xOffset, y * territorySize.y * 0.75f, 0) - gridCenter;
-                GenerateNewTerritory(spawnPosition, id++);
+                spawnPosition = new Vector3(x * territorySize.x + xOffset, y * territorySize.y * 0.75f, 0) - gridCenter;
+                GenerateNewTerritory(spawnPosition, id++, x, y);
             }
         }
     }
-
-    private void GenerateNewTerritory(Vector3 spawnPosition, int id)
+    
+    private void GenerateNewTerritory(Vector3 spawnPosition, int id, int x, int y)
     {
-        GameObject newTerritoryObject = Instantiate(territoryPrefab, spawnPosition, Quaternion.identity);
+        /* Parent obj for sorting purposes */
+        GameObject parentObj = GameObject.Find("Territories") ?? new GameObject("Territories");
 
+        /* Instantiate new territory */
+        GameObject newTerritoryObject = Instantiate(territoryPrefab, spawnPosition, Quaternion.identity);
+        newTerritoryObject.name = "Territory" + id;
+
+        /* Set parentObj as parent */
+        newTerritoryObject.transform.SetParent(parentObj.transform);
+
+        /* Territory attributes */
         Territory newTerritory = newTerritoryObject.GetComponent<Territory>();
         newTerritory.id = id;
         newTerritory.territoryName = GenerateName();
+        newTerritory.coords = new Vector2Int(x, y);
+
+        /* Add to the list */
         territories.Add(id, newTerritoryObject);
     }
 
     /* Generate neighborgs */
+    private void AssignNeighborgs()
+    {
+        Territory territoryCode;
+        Vector2Int coords;
+
+        foreach (var territory in territories)
+        {
+            territoryCode = territory.Value.GetComponent<Territory>();
+            coords = territoryCode.coords;
+
+            CheckLeftAndRight(territoryCode, coords.x, coords.y);
+            if (coords.y != height - 1)
+                CheckBottomLeftBottomRight(territoryCode, territoryCode.id, coords.x, coords.y);
+            if (coords.y != 0)
+                CheckTopLeftTopRight(territoryCode, territoryCode.id, coords.x, coords.y);
+        }
+    }
+
+    private void CheckLeftAndRight(Territory territory, int x, int y)
+    {
+        /* Left Neighborg */
+        if (x > 0)
+            territory.AddNeighborg((x - 1) + (y * width));
+
+        /* Right Neighborg */
+        if (x < (width - 1))
+            territory.AddNeighborg((x + 1) + (y * width));
+    }
+
+    private void CheckBottomLeftBottomRight(Territory territory, int id, int x, int y)
+    {
+        if (y % 2 == 0)
+        {
+            /* Left */
+            if (x != 0)
+                territory.AddNeighborg(id + width - 1);
+
+            /* Right */
+            territory.AddNeighborg(id + width);
+        }
+        else
+        {
+            /* Left */
+            territory.AddNeighborg(id + width);
+
+            /* Right */
+            if ((x + 1) != width)
+                territory.AddNeighborg(id + width + 1);
+        }
+    }
+
+    private void CheckTopLeftTopRight(Territory territory, int id, int x, int y)
+    {
+        if (y % 2 == 0)
+        {
+            /* Left */
+            if (x != 0)
+                territory.AddNeighborg(id - width - 1);
+
+            /* Right */
+            territory.AddNeighborg(id - width);
+        }
+        else
+        {
+            /* Left */
+            territory.AddNeighborg(id - width);
+
+            /* Right */
+            if ((x + 1) != width)
+                territory.AddNeighborg(id - width + 1);
+        }
+    }
+
+    /* Generate Gang Positions */
+    private void GenerateGangs(int amount)
+    {
+        GameObject parentObj = GameObject.Find("Gangs") ?? new GameObject("Gangs");
+        GameObject newGang;
+        Gang gangScript;
+
+        for (int i = 0; i != amount; i++)
+        {
+            newGang = Instantiate(gangPrefab, new Vector3(0, 0, 0), Quaternion.identity);
+            newGang.name = "Gang" + i;
+
+            newGang.transform.SetParent(parentObj.transform);
+
+            gangScript = newGang.GetComponent<Gang>();
+            gangScript.id = i;
+
+            AttributeRandomMainTerritory(gangScript);
+            ExpandTerritory(gangScript);
+            ExpandTerritory(gangScript);
+        }
+    }
+    
+    private void AttributeRandomMainTerritory(Gang gang)
+    {
+        var availableTerritories = territories.Where(t => t.Value.GetComponent<Territory>().gang == null).ToList();
+        if (availableTerritories.Count > 0)
+        {
+            Territory territory = availableTerritories[Random.Range(0, availableTerritories.Count)].Value.GetComponent<Territory>();
+            territory.SetGang(gang);
+            gang.AddTerritory(territory.id);
+        }
+    }
+    
+    private void ExpandTerritory(Gang gang)
+    {
+        HashSet<int> allAvailableNeighbours = new HashSet<int>();
+
+        foreach (int territoryId in gang.territorylist)
+        {
+            Territory currentTerritory = territories[territoryId].GetComponent<Territory>();
+
+            foreach (int neighbourId in currentTerritory.neighbourgs)
+            {
+                if (territories[neighbourId].GetComponent<Territory>().gang == null)
+                    allAvailableNeighbours.Add(neighbourId);
+            }
+        }
+
+        if (allAvailableNeighbours.Count > 0)
+        {
+            int randomIndex = Random.Range(0, allAvailableNeighbours.Count);
+            int newTerritoryId = allAvailableNeighbours.ElementAt(randomIndex);
+            Territory newTerritory = territories[newTerritoryId].GetComponent<Territory>();
+            newTerritory.SetGang(gang);
+            gang.AddTerritory(newTerritoryId);
+        }
+    }
+
 
     /* Name Generator */
     private string GenerateName()

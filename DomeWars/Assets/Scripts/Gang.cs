@@ -6,14 +6,19 @@ public class Gang : MonoBehaviour
 {
     public int id;
     private string name;
-    private string color;
+    public Color color;
     private int mainTerritoryId;
-    private List<int> territorylist = new List<int> ();
+    public List<int> territorylist = new List<int> ();
     private Dictionary<Gang,int> relation = new Dictionary<Gang, int> ();
     private int money;
     private int publicOpinion;
     private List<Unit> units = new List<Unit> ();
     
+    private void Awake()
+    {
+        color = GameManager.Instance.GetAColor();
+    }
+
     // Start is called before the first frame update
     void Start()
     {
@@ -25,4 +30,7 @@ public class Gang : MonoBehaviour
     {
         
     }
+
+    /* Territory */
+    public void AddTerritory(int id) { territorylist.Add(id); }
 }

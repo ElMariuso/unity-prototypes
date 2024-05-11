@@ -100,9 +100,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: 0
   territoryName: 
-  neighborgs: 
+  neighbourgs: 
   units: []
   gang: {fileID: 0}
+  coords: {x: 0, y: 0}
 --- !u!60 &-6766671658743216176
 PolygonCollider2D:
   m_ObjectHideFlags: 0
