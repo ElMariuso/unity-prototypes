@@ -22,7 +22,7 @@ public class TerritoryManager : MonoBehaviour
         CalculateTerritorySize();
         GenerateTerritories();
         AssignNeighborgs();
-        GenerateGangs((width * height) / initialTerritories);   
+        GenerateGangs(((width * height) / initialTerritories));   
     }
 
     /* Generate Territories */
