@@ -6,9 +6,11 @@ public class TerritoryManager : MonoBehaviour
 {
     [SerializeField] private int width;
     [SerializeField] private int height;
+    [SerializeField] private int initialTerritories;
     [SerializeField] private GameObject territoryPrefab;
     [SerializeField] private GameObject gangPrefab;
     public Dictionary<int, GameObject> territories = new Dictionary<int, GameObject>();
+    public Dictionary<int, GameObject> gangs = new Dictionary<int, GameObject>();
 
     /* Name Generator */
     [SerializeField] private TerritoryTermsList territoryTermsList;
@@ -20,7 +22,7 @@ public class TerritoryManager : MonoBehaviour
         CalculateTerritorySize();
         GenerateTerritories();
         AssignNeighborgs();
-        GenerateGangs((width * height) / 3);   
+        GenerateGangs(((width * height) / initialTerritories));   
     }
 
     /* Generate Territories */
@@ -36,11 +38,16 @@ public class TerritoryManager : MonoBehaviour
 
     private void GenerateTerritories()
     {
-        Vector3 gridCenter = new Vector3((width - 1) * territorySize.x * 0.75f / 2, (height - 1) * territorySize.y * 0.75f / 2, 0);
+        Vector3 gridCenter;
         Vector3 spawnPosition;
         float xOffset;
         int id = 0;
-
+        
+        if (width % 2 == 0)
+            gridCenter = new Vector3((width - 1) * territorySize.x * 0.75f / 2, (height - 1) * territorySize.y * 0.75f / 2, 0);
+        else
+            gridCenter = new Vector3(((width - 1) * (territorySize.x) * 0.75f / 2) + (territorySize.x / 2), (height - 1) * territorySize.y * 0.75f / 2, 0);
+        
         for (int y = 0; y < height; y++)
         {
             for (int x = 0; x < width; x++)
@@ -166,9 +173,11 @@ public class TerritoryManager : MonoBehaviour
             gangScript.id = i;
 
             AttributeRandomMainTerritory(gangScript);
-            ExpandTerritory(gangScript);
-            ExpandTerritory(gangScript);
+
+            /* Add to the list */
+            gangs.Add(i, newGang);
         }
+        MoreTerritories();
     }
     
     private void AttributeRandomMainTerritory(Gang gang)
@@ -177,8 +186,25 @@ public class TerritoryManager : MonoBehaviour
         if (availableTerritories.Count > 0)
         {
             Territory territory = availableTerritories[Random.Range(0, availableTerritories.Count)].Value.GetComponent<Territory>();
+            territory.canBeOccupied = true;
             territory.SetGang(gang);
             gang.AddTerritory(territory.id);
+        }
+    }
+
+    private void MoreTerritories()
+    {
+        GameObject gang;
+        Gang gangScript;
+
+        for (int i = 0; i != (initialTerritories - 1); i++)
+        {
+            foreach (KeyValuePair<int, GameObject> pair in gangs)
+            {
+                gang = pair.Value;
+                gangScript = gang.GetComponent<Gang>();
+                ExpandTerritory(gangScript);
+            }
         }
     }
     
@@ -202,6 +228,7 @@ public class TerritoryManager : MonoBehaviour
             int randomIndex = Random.Range(0, allAvailableNeighbours.Count);
             int newTerritoryId = allAvailableNeighbours.ElementAt(randomIndex);
             Territory newTerritory = territories[newTerritoryId].GetComponent<Territory>();
+            newTerritory.canBeOccupied = true;
             newTerritory.SetGang(gang);
             gang.AddTerritory(newTerritoryId);
         }

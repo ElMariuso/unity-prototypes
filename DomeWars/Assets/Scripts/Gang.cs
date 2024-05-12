@@ -16,7 +16,7 @@ public class Gang : MonoBehaviour
     
     private void Awake()
     {
-        color = GameManager.Instance.GetAColor();
+        color = GameManager.Instance.colorManager.GetAColor();
     }
 
     // Start is called before the first frame update

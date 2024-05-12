@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class Territory : MonoBehaviour
 {
@@ -14,7 +15,9 @@ public class Territory : MonoBehaviour
     public Vector2Int coords;
 
     /* Utils */
+    [SerializeField] private GameObject highlight;
     private Renderer territoryRenderer;
+    public bool canBeOccupied = false;
 
     private void Awake()
     {
@@ -23,9 +26,30 @@ public class Territory : MonoBehaviour
 
     public void AddNeighborg(int id) { neighbourgs.Add(id); }
 
+    /*** Mouse Management ***/
+    /* Highlight */
+    public void OnMouseEnter()
+    {
+        if (!canBeOccupied) return ;
+        highlight.SetActive(true);
+    }
+
+    public void OnMouseExit()
+    {
+        if (!canBeOccupied) return ;
+        highlight.SetActive(false);
+    }
+
+    /* Click */
+    private void OnMouseDown()
+    {
+        Debug.Log("HEY" + id);
+    }
+
     /* Gang Management */
     public void SetGang(Gang newGang)
     { 
+        if (!canBeOccupied) return ;
         gang = newGang;
 
         changeColor(newGang.color);
