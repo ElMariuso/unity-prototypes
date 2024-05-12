@@ -186,6 +186,7 @@ public class TerritoryManager : MonoBehaviour
         if (availableTerritories.Count > 0)
         {
             Territory territory = availableTerritories[Random.Range(0, availableTerritories.Count)].Value.GetComponent<Territory>();
+            territory.canBeOccupied = true;
             territory.SetGang(gang);
             gang.AddTerritory(territory.id);
         }
@@ -227,6 +228,7 @@ public class TerritoryManager : MonoBehaviour
             int randomIndex = Random.Range(0, allAvailableNeighbours.Count);
             int newTerritoryId = allAvailableNeighbours.ElementAt(randomIndex);
             Territory newTerritory = territories[newTerritoryId].GetComponent<Territory>();
+            newTerritory.canBeOccupied = true;
             newTerritory.SetGang(gang);
             gang.AddTerritory(newTerritoryId);
         }
